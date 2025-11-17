@@ -314,15 +314,17 @@ def get_sp500_tickers() -> List[str]:
     """Get S&P 500 tickers for analysis."""
     import requests
     # If a local cached file exists, prefer it (offline-friendly)
-    cache = Path('data/sp500.txt')
-    if cache.exists():
-        try:
-            with cache.open() as f:
-                tickers = [l.strip().upper().replace('.', '-') for l in f if l.strip()]
-                if tickers:
-                    return tickers
-        except Exception:
-            logger.debug('Failed to read local S&P500 cache; falling back to web fetch')
+    # Prefer tracked cache/ directory for reliable offline operation
+    cache_priorities = [Path('cache/sp500.txt'), Path('data/sp500.txt')]
+    for cache in cache_priorities:
+        if cache.exists():
+            try:
+                with cache.open() as f:
+                    tickers = [l.strip().upper().replace('.', '-') for l in f if l.strip()]
+                    if tickers:
+                        return tickers
+            except Exception:
+                logger.debug(f'Failed to read local S&P500 cache at {cache}; trying next source')
     url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
     # Primary: pandas.read_html (fast when lxml/html5lib installed)
     try:
@@ -388,17 +390,18 @@ def get_russell3000_tickers() -> List[str]:
         Path('data/russell3000.txt').write_text('\\n'.join(tickers))
     "
     """
-    cache = Path('data/russell3000.txt')
-    if cache.exists():
-        try:
-            with cache.open() as f:
-                tickers = [l.strip().upper().replace('.', '-') for l in f if l.strip()]
-                if tickers:
-                    return tickers
-        except Exception:
-            logger.debug('Failed to read local Russell 3000 cache')
+    cache_priorities = [Path('cache/russell3000.txt'), Path('data/russell3000.txt')]
+    for cache in cache_priorities:
+        if cache.exists():
+            try:
+                with cache.open() as f:
+                    tickers = [l.strip().upper().replace('.', '-') for l in f if l.strip()]
+                    if tickers:
+                        return tickers
+            except Exception:
+                logger.debug(f'Failed to read local Russell 3000 cache at {cache}')
 
-    logger.warning('Russell 3000 cache not found at data/russell3000.txt')
+    logger.warning('Russell 3000 cache not found in cache/ or data/')
     logger.warning('Download from: https://www.kibot.com/Historical_Data/Russell_3000_Historical_Tick_Data.aspx')
     # Fallback: return a representative sample
     return []
@@ -410,15 +413,16 @@ def get_russell2000_tickers() -> List[str]:
     Prefers local cached file (data/russell2000.txt) if present.
     Otherwise falls back to Russell 3000 full universe.
     """
-    cache = Path('data/russell2000.txt')
-    if cache.exists():
-        try:
-            with cache.open() as f:
-                tickers = [l.strip().upper().replace('.', '-') for l in f if l.strip()]
-                if tickers:
-                    return tickers
-        except Exception:
-            logger.debug('Failed to read local Russell2000 cache')
+    cache_priorities = [Path('cache/russell2000.txt'), Path('data/russell2000.txt')]
+    for cache in cache_priorities:
+        if cache.exists():
+            try:
+                with cache.open() as f:
+                    tickers = [l.strip().upper().replace('.', '-') for l in f if l.strip()]
+                    if tickers:
+                        return tickers
+            except Exception:
+                logger.debug(f'Failed to read local Russell2000 cache at {cache}')
 
     # Fall back to Russell 3000 (full universe)
     r3000 = get_russell3000_tickers()
@@ -433,15 +437,16 @@ def get_nasdaq100_tickers() -> List[str]:
     """Fetch Nasdaq-100 tickers from Wikipedia where possible; fallback to a small sample."""
     url = 'https://en.wikipedia.org/wiki/Nasdaq-100'
     # Prefer local cache if available
-    cache = Path('data/nasdaq100.txt')
-    if cache.exists():
-        try:
-            with cache.open() as f:
-                tickers = [l.strip().upper().replace('.', '-') for l in f if l.strip()]
-                if tickers:
-                    return tickers
-        except Exception:
-            logger.debug('Failed to read local Nasdaq100 cache; falling back to web fetch')
+    cache_priorities = [Path('cache/nasdaq100.txt'), Path('data/nasdaq100.txt')]
+    for cache in cache_priorities:
+        if cache.exists():
+            try:
+                with cache.open() as f:
+                    tickers = [l.strip().upper().replace('.', '-') for l in f if l.strip()]
+                    if tickers:
+                        return tickers
+            except Exception:
+                logger.debug(f'Failed to read local Nasdaq100 cache at {cache}; falling back to web fetch')
 
     try:
         tables = pd.read_html(url)
