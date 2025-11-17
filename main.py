@@ -16,7 +16,7 @@ Usage:
 import logging
 import sys
 from pathlib import Path
-from recommender import StockRecommender, get_sp500_tickers
+from src.recommender import StockRecommender, get_sp500_tickers, get_russell3000_tickers, get_russell2000_tickers, get_nasdaq100_tickers, get_all_market_tickers
 
 # Configure logging
 logging.basicConfig(
@@ -57,7 +57,6 @@ def main():
         tickers = get_sp500_tickers()
         logger.info(f"Analyzing {len(tickers)} S&P 500 stocks (this may take several minutes)...")
     elif '--russell3000' in sys.argv:
-        from recommender import get_russell3000_tickers
         logger.info("Fetching Russell 3000 stocks (comprehensive US market)...")
         tickers = get_russell3000_tickers()
         if not tickers:
@@ -65,7 +64,6 @@ def main():
             sys.exit(1)
         logger.info(f"Analyzing {len(tickers)} Russell 3000 stocks (this will take a long time)...")
     elif '--russell2000' in sys.argv:
-        from recommender import get_russell2000_tickers
         logger.info("Fetching Russell 2000 stocks (small/mid-cap universe)...")
         tickers = get_russell2000_tickers()
         if not tickers:
@@ -74,12 +72,10 @@ def main():
             tickers = get_russell3000_tickers()
         logger.info(f"Analyzing {len(tickers)} Russell tickers (this may take several minutes)...")
     elif '--nasdaq100' in sys.argv:
-        from recommender import get_nasdaq100_tickers
         logger.info("Fetching Nasdaq-100 stocks (large-cap tech/growth leaders)...")
         tickers = get_nasdaq100_tickers()
         logger.info(f"Analyzing {len(tickers)} Nasdaq-100 stocks (this may take several minutes)...")
     elif '--all' in sys.argv:
-        from recommender import get_all_market_tickers
         logger.info("Fetching a broad market universe (S&P500 + Russell + Nasdaq-100)...")
         tickers = get_all_market_tickers()
         logger.info(f"Analyzing {len(tickers)} market tickers (this may take a long time)...")

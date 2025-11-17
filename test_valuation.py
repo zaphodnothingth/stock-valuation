@@ -4,9 +4,9 @@ Unit tests for stock valuation components.
 
 import unittest
 from unittest.mock import Mock, patch
-from valuation_calculator import ValuationCalculator
-from data_fetcher import DataFetcher
-from recommender import StockRecommender
+from src.valuation_calculator import ValuationCalculator
+from src.data_fetcher import DataFetcher
+from src.recommender import StockRecommender
 
 
 class TestValuationCalculator(unittest.TestCase):
