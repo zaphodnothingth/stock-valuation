@@ -42,6 +42,16 @@ env/
 stock_recommendations.csv
 valuation_analysis.log
 
+# Additional Python artifacts
+*.pyo
+*.pyd
+__pycache__/
+
+# Test / tooling caches
+.pytest_cache/
+.mypy_cache/
+
+
 # OS
 .DS_Store
 Thumbs.db
