@@ -18,13 +18,17 @@ import sys
 from pathlib import Path
 from src.recommender import StockRecommender, get_sp500_tickers, get_russell3000_tickers, get_russell2000_tickers, get_nasdaq100_tickers, get_all_market_tickers
 
+# Create necessary directories
+Path('logs').mkdir(exist_ok=True)
+Path('output').mkdir(exist_ok=True)
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler('valuation_analysis.log')
+        logging.FileHandler('logs/valuation_analysis.log')
     ]
 )
 logger = logging.getLogger(__name__)
@@ -109,7 +113,7 @@ def main():
             recommender.print_recommendations(recommendations)
             
             # Save to CSV
-            output_file = 'stock_recommendations.csv'
+            output_file = 'output/stock_recommendations.csv'
             recommendations.to_csv(output_file, index=False)
             logger.info(f"Results saved to {output_file}")
         else:

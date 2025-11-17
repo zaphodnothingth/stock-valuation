@@ -39,8 +39,8 @@ env/
 .env.*.local
 
 # Output files (regenerate on each run)
-stock_recommendations.csv
-valuation_analysis.log
+output/
+logs/
 
 # Additional Python artifacts
 *.pyo
