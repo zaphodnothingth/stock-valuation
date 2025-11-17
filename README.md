@@ -1,66 +1,69 @@
 # Stock Valuation Service
 
-A minimalist entry for the project. Full documentation and quickstart are available in the `docs/` directory.
+Identifies undervalued stocks using Warren Buffett & Charlie Munger's fundamental analysis principles.
 
-Usage examples
+## What It Does
+
+Analyzes **Free Cash Flow**, **Return on Equity**, and **Intrinsic Value** using DCF (Discounted Cash Flow) to score and rank investment opportunities.
+
+Data source: Yahoo Finance (free, no API key required).
+
+## Quick Start
 
 ```bash
-# Analyze default curated list
+pip install -r requirements.txt
 python main.py
-
-# Analyze S&P 500 (large run)
-python main.py --sp500
 ```
 
-See detailed guides in `docs/`:
-- `docs/quickstart.md` — Quick start & common commands
-- `docs/details.md` — Full documentation and architecture
-- `docs/status.md` — System status and test results
+That's it. You'll get a ranked list of undervalued stocks from a curated default list of 30 companies.
 
-If you want the short, copyable quickstart, use `docs/quickstart.md`.
+For more: analyze specific stocks, universes (S&P 500, Russell 3000, etc.), or read the docs below.
 
-License: MIT
-# Stock Valuation Service - Buffett/Munger Approach
+## Documentation
 
-A Python service that recommends undervalued stocks using the fundamental valuation principles of Warren Buffett and Charlie Munger.
+| Doc | Purpose |
+|-----|---------|
+| **[Quickstart](docs/quickstart.md)** | Copy/paste commands for common scenarios |
+| **[Usage](docs/usage.md)** | Full CLI reference: all flags and options |
+| **[Methodology](docs/methodology.md)** | How the valuation model works (formulas, scoring, quality tiers) |
+| **[Architecture](docs/architecture.md)** | Code structure, module overview, data flow |
+| **[Status](docs/status.md)** | Test results, system validation, known limitations |
 
-## Overview
+## Key Metrics (Quick Ref)
 
-This service analyzes stocks based on:
+- **Intrinsic Value**: Calculated DCF over 10 years with terminal value
+- **Margin of Safety Value**: Intrinsic value × 0.65 (safe entry point, 35% discount)
+- **ROE**: Return on Equity — quality of capital deployment
+- **FCF Yield**: Free cash flow as % of stock price
+- **Recommendation Score**: 0–100 composite rating
 
-1. **Free Cash Flow (FCF)** - Sustainable cash generation after capital investments
-2. **Return on Equity (ROE)** - Quality of capital allocation
-3. **Intrinsic Value** - True economic value using DCF (Discounted Cash Flow) analysis
-4. **Margin of Safety** - 35% discount to intrinsic value for risk protection
+## Example
 
-The approach prioritizes:
-- Companies with strong, consistent FCF generation
-- High ROE (>15% good, >20% excellent)
-- Minimal debt and strong balance sheets
-- Long-term value over short-term price movements
+```bash
+# Analyze S&P 500 (first 50)
+python main.py --sp500 --limit 50
 
-## Key Metrics
+# Analyze Russell 3000 (entire US market)
+python main.py --russell3000
 
-- **Intrinsic Value**: Calculated using 10-year DCF projection with terminal value
-- **Margin of Safety Value**: Intrinsic value discounted by 35% (conservative buffer)
-- **Discount**: How much the current price is below intrinsic value
-- **Upside Potential**: Expected return if stock reaches intrinsic value
-- **Recommendation Score**: 0-100 rating combining all factors
+# Specific stocks
+python main.py AAPL MSFT GOOGL JNJ V
+```
 
 ## Installation
 
 ```bash
+python 3.8+
 pip install -r requirements.txt
 ```
 
-**Requirements:**
-- Python 3.8+
-- yfinance (Yahoo Finance data)
-- pandas (data analysis)
-- numpy (numerical operations)
-- python-dotenv (environment variable management)
+## Disclaimer
 
-## Usage
+Educational and research purposes only. Not financial advice. Consult a financial advisor before investing.
+
+---
+
+**License**: MIT | **Status**: Production-ready | **Author**: AI Stock Analysis Agent
 
 ### Basic Usage - Default Stock List
 

@@ -1,80 +1,44 @@
-# Stock Valuation Service - Quick Reference
+# Quickstart
 
-## Status: ✅ Complete & Tested
+Copy and paste any of these commands.
 
-**All 18 unit tests passing. End-to-end working with live data.**
+## Install
 
----
-
-## What This Does
-
-Identifies **undervalued stocks** using Warren Buffett & Charlie Munger's fundamental analysis approach:
-- Analyzes Free Cash Flow (FCF)
-- Calculates Return on Equity (ROE)
-- Computes intrinsic value using DCF (Discounted Cash Flow)
-- Applies 35% margin of safety
-- Scores and ranks opportunities
-
-**Data Source**: Yahoo Finance (`yfinance`) — free, no API key needed.
-
----
-
-## Quick Start
-
-### Installation (one-time)
 ```bash
-cd /home/zaphod/gits/stock-valuation
 pip install -r requirements.txt
 ```
 
-### Usage
+## Run
 
-**Run on default 30 stocks:**
 ```bash
+# Default 30 stocks
 python main.py
-```
 
-**Analyze specific tickers:**
-```bash
-python main.py AAPL MSFT GOOGL AMZN TSLA JPM JNJ
-```
-
-**Analyze all S&P 500 (5-10 min):**
-```bash
+# S&P 500
 python main.py --sp500
-```
 
-**Verbose logging:**
-```bash
-python main.py -v
-```
+# Russell 3000 (entire US market)
+python main.py --russell3000
 
-**Run tests:**
-```bash
-python -m unittest test_valuation -v
-```
+# Specific stocks
+python main.py AAPL MSFT GOOGL JNJ V
 
----
+# Limit to first N (faster)
+python main.py --sp500 --limit 50
+
+# Debug logging
+python main.py --verbose
+```
 
 ## Output
 
-### Console Display
-```
-Ticker   Price Intrinsic Value MOS Value Discount Upside    Signal         ROE    FCF Yield Score
-   HD $362.36      $647.21    $420.68    44.0%   78.6%  STRONG_BUY      42.7%    4.95%     95.0
-  PEP $145.85      $309.89    $201.43    52.9%  112.5%  STRONG_BUY      13.4%    5.89%     80.0
-```
+Results saved to:
+- `stock_recommendations.csv` — Top 15 recommendations
+- `valuation_analysis.log` — Detailed processing log
 
-### CSV Export
-- **File**: `stock_recommendations.csv`
-- **Contents**: Top 15 recommendations with all metrics
-- **Format**: Ready for Excel/Pandas analysis
+For full options, see [Usage](usage.md).
 
-### Detailed Log
-- **File**: `valuation_analysis.log`
-- **Contains**: Processing steps for each stock, debug info
 
----
 
 ## Methodology
 
