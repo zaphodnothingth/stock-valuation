@@ -1,25 +1,3 @@
-# Stock Valuation Service
-
-A minimalist entry for the project. Full documentation and quickstart are available in the `docs/` directory.
-
-Usage examples
-
-```bash
-# Analyze default curated list
-python main.py
-
-# Analyze S&P 500 (large run)
-python main.py --sp500
-```
-
-See detailed guides in `docs/`:
-- `docs/quickstart.md` — Quick start & common commands
-- `docs/details.md` — Full documentation and architecture
-- `docs/status.md` — System status and test results
-
-If you want the short, copyable quickstart, use `docs/quickstart.md`.
-
-License: MIT
 # Stock Valuation Service - Buffett/Munger Approach
 
 A Python service that recommends undervalued stocks using the fundamental valuation principles of Warren Buffett and Charlie Munger.
