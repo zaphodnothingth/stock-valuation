@@ -56,13 +56,49 @@ python main.py AAPL MSFT GOOGL AMZN TSLA
 
 Analyzes only the specified tickers.
 
-### S&P 500 Analysis (Comprehensive)
+### Universe Flags - Analyze Market Segments
 
+#### S&P 500 (503 large-cap stocks)
 ```bash
 python main.py --sp500
 ```
-
 Analyzes all 500 S&P 500 stocks (may take 5-10 minutes).
+
+#### Russell 2000 (272 small/mid-cap stocks)
+```bash
+python main.py --russell2000
+```
+Analyzes small and mid-cap companies (1-2 minutes).
+
+#### Russell 3000 (3,559 comprehensive US market)
+```bash
+python main.py --russell3000
+```
+Analyzes the entire US stock market universe (10-20 minutes). **Requires** `data/russell3000.txt` cache. To update:
+1. Download from https://www.kibot.com/Historical_Data/Russell_3000_Historical_Tick_Data.aspx
+2. Extract using the documented method in `recommender.py`'s `get_russell3000_tickers()` function
+
+#### Nasdaq-100 (89 large-cap tech/growth leaders)
+```bash
+python main.py --nasdaq100
+```
+Analyzes top Nasdaq stocks, with emphasis on tech sector (1-2 minutes).
+
+#### Combined Market Analysis (795 stocks)
+```bash
+python main.py --all
+```
+Analyzes S&P 500, Russell 2000, and Nasdaq-100 combined with de-duplication (5-10 minutes).
+
+### Limit Stocks for Faster Testing
+
+```bash
+python main.py --sp500 --limit 100
+python main.py --russell3000 --limit 500
+python main.py --all --limit 200
+```
+
+Limits analysis to the first N stocks (useful for quick testing).
 
 ### Verbose Logging
 
@@ -213,6 +249,18 @@ Coverage includes:
 
 ## Data Sources
 
+### Ticker Lists (Cached Locally)
+
+The system uses pre-cached ticker lists for offline operation and reliability:
+
+| Universe | Count | Source | Cache File |
+|----------|-------|--------|-----------|
+| S&P 500 | 503 | GitHub datasets repo | `data/sp500.txt` |
+| Nasdaq-100 | 89 | Curated list | `data/nasdaq100.txt` |
+| Russell 3000 | 3,559 | kibot.com HTML extract | `data/russell3000.txt` |
+
+**Note on Russell 3000**: To update, download the HTML from https://www.kibot.com/Historical_Data/Russell_3000_Historical_Tick_Data.aspx and save to `data/Russell_3000_Historical_Tick_Data.html`, then run the extraction documented in `recommender.py`'s `get_russell3000_tickers()` function.
+
 ### Primary: Yahoo Finance (yfinance)
 - Free, no API key required
 - Comprehensive financial data
@@ -247,16 +295,33 @@ RETAIL_GROWTH_RATE=0.03
 
 ## Future Enhancements
 
-- [ ] Industry-specific growth rate adjustments
-- [ ] Multi-year historical average metrics
-- [ ] Dividend analysis and reinvestment
-- [ ] Debt ratio and leverage analysis
-- [ ] Competitor comparison
-- [ ] Sector rotation strategies
-- [ ] Real-time alerts for crossed thresholds
-- [ ] Portfolio construction optimizer
-- [ ] Robinhood integration for live trading
-- [ ] Machine learning for growth prediction
+We organize upcoming work into prioritized groups so the roadmap is actionable.
+
+Major Planned Features (next priority):
+- [ ] Sector filtering and subgroup analysis — allow users to run the model on specific sectors (e.g., Technology, Financials, Healthcare), and support sector-based growth assumptions and weighting. This is a major feature that will enable targeted opportunity cones and sector rotation strategies.
+- [ ] Industry-specific growth rate adjustments — more granular, data-driven growth assumptions per industry/subsector.
+
+Short-term Enhancements (nice wins, few-day sprints):
+- [ ] Multi-year historical average metrics — smooth noisy year-to-year inputs using multi-year averages.
+- [ ] Dividend analysis and reinvestment — display dividend yields and flag unsustainable payouts (won't change FCF-based valuation logic).
+- [ ] Debt ratio and leverage analysis — integrate balance-sheet risk metrics into scoring.
+
+Medium-term Enhancements (multi-week):
+- [ ] Competitor comparison — peer-group valuation adjustments and relative scoring.
+- [ ] Sector rotation strategies — implement presets and filters to support sector-focused analysis.
+- [ ] Real-time alerts for crossed thresholds — webhook/email alerts for price/quality threshold crossings.
+
+Long-term / Ambitious (research + infra):
+- [ ] Portfolio construction optimizer — build mean-variance / Kelly-inspired portfolio sizing based on our scores.
+- [ ] Machine learning for growth prediction — experiment with ML signals to refine growth inputs (research-grade).
+- [ ] Robinhood / broker integration for live trading (optional) — place orders from recommendations (requires careful risk controls).
+
+Other Nice-to-haves:
+- [ ] International universes and non-US exchanges
+- [ ] Extended small/mid-cap universes (Russell 2000 integration)
+- [ ] More data sources (Finnhub, Alpha Vantage, SEC EDGAR)
+
+If you'd like, I can start the sector-filtering feature next (it will involve: adding sector lookup, CLI flags like `--sector TECH`, filtering utilities, and UI/CSV output support). 
 
 ## References
 
