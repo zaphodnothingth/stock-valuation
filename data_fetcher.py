@@ -15,6 +15,47 @@ import time
 logger = logging.getLogger(__name__)
 
 
+def _estimate_capex_from_balance_sheet(balance_sheet, latest_cf, ticker: str) -> float:
+    """
+    Estimate CapEx from balance sheet changes when cash flow data is missing.
+    
+    CapEx = (Current PPE + Current Depreciation) - (Prior PPE + Prior Depreciation)
+    This is a fallback when CapEx line is missing or zero.
+    """
+    try:
+        if balance_sheet is None or balance_sheet.empty or len(balance_sheet.columns) < 2:
+            return 0
+        
+        current_bs = balance_sheet.iloc[:, 0]
+        prior_bs = balance_sheet.iloc[:, 1]
+        
+        # Get PPE (Property, Plant & Equipment)
+        ppe_current = current_bs.get('Property Plant Equipment', 0) or 0
+        ppe_prior = prior_bs.get('Property Plant Equipment', 0) or 0
+        
+        # If no PPE, try alternative names
+        if not ppe_current:
+            ppe_current = current_bs.get('Property Plant and Equipment Net', 0) or 0
+        if not ppe_prior:
+            ppe_prior = prior_bs.get('Property Plant and Equipment Net', 0) or 0
+        
+        # Get accumulated depreciation (also typically listed)
+        acc_depr_current = abs(current_bs.get('Accumulated Depreciation', 0) or 0)
+        acc_depr_prior = abs(prior_bs.get('Accumulated Depreciation', 0) or 0)
+        
+        # Estimate: If PPE increased, that's likely CapEx
+        ppe_increase = max(ppe_current - ppe_prior, 0)
+        
+        if ppe_increase > 0:
+            logger.debug(f"{ticker}: Estimated CapEx from PPE change: ${ppe_increase/1e9:.2f}B")
+            return ppe_increase
+        
+        return 0
+    except Exception as e:
+        logger.debug(f"Error estimating CapEx from balance sheet: {e}")
+        return 0
+
+
 class DataFetcher:
     """
     Fetches financial data for stocks from various sources.
@@ -136,12 +177,28 @@ class DataFetcher:
                             latest_cf.get('Net Cash From Operating Activities') or
                             0
                         )
-                        capex = capex or abs(
-                            latest_cf.get('Capital Expenditures') or
-                            latest_cf.get('Purchases of Property Plant and Equipment') or
-                            0
-                        )
-                    except Exception:
+                        
+                        # CapEx extraction - try multiple field names
+                        # Note: CapEx is typically negative in cash flow, so we take abs()
+                        capex_candidates = [
+                            latest_cf.get('Capital Expenditures'),
+                            latest_cf.get('Purchases of Property Plant and Equipment'),
+                            latest_cf.get('Capital Allocation'),
+                            latest_cf.get('Purchase of Property Plant and Equipment'),
+                        ]
+                        
+                        for capex_val in capex_candidates:
+                            if capex_val and capex_val != 0:
+                                capex = abs(float(capex_val))
+                                break
+                        
+                        # If still zero, try extracting from balance sheet changes
+                        if not capex or capex == 0:
+                            capex = _estimate_capex_from_balance_sheet(
+                                financials.get('balance_sheet'), latest_cf, ticker
+                            )
+                    except Exception as e:
+                        logger.debug(f"Error extracting CapEx for {ticker}: {e}")
                         pass
             
             if financials and 'income_stmt' in financials:
@@ -182,8 +239,36 @@ class DataFetcher:
                             f"ocf={operating_cash_flow}, ni={net_income}, eq={total_equity}")
                 return None
             
+            # Data quality warnings
+            fcf = operating_cash_flow - capex
+            fcf_yield = (fcf / shares_outstanding) / current_price if current_price > 0 else 0
+            roe_calc = net_income / total_equity if total_equity > 0 else 0
+            
+            # Flag: CapEx is zero or missing (likely data error)
+            if capex == 0 or capex < operating_cash_flow * 0.01:
+                logger.warning(f"{ticker}: CapEx is zero or suspiciously low "
+                             f"(OCF: ${operating_cash_flow/1e9:.2f}B, CapEx: ${capex/1e9:.2f}B). "
+                             f"This may indicate missing or unreliable data.")
+            
+            # Flag: FCF yield is unreasonably high (>20%)
+            if fcf_yield > 0.20:
+                logger.warning(f"{ticker}: Very high FCF yield ({fcf_yield:.1%}). "
+                             f"This may indicate unsustainable cash generation or data error.")
+            
+            # Flag: FCF is more than OCF (shouldn't happen if CapEx is positive)
+            if fcf > operating_cash_flow and capex > 0:
+                logger.warning(f"{ticker}: FCF exceeds OCF (CapEx appears negative). "
+                             f"Data validation issue detected.")
+            
+            # Flag: Unusually low ROE for asset-light businesses (likely quarterly data)
+            # Example: Visa/Mastercard have 40-50% ROE, if showing <20%, likely quarterly data
+            if roe_calc < 0.15 and fcf_yield > 0.03 and capex == 0:
+                logger.warning(f"{ticker}: ROE appears unusually low ({roe_calc:.1%}) "
+                             f"with high FCF yield ({fcf_yield:.1%}). Likely quarterly data issue. "
+                             f"Consider data as unreliable.")
+            
             # Growth rate estimate - conservative default
-            growth_rate = 0.06  # 6% default
+            growth_rate = 0.06  # 6% default (will be overridden by sector rates)
             
             metrics = {
                 'ticker': ticker,
