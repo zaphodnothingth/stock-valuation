@@ -40,5 +40,5 @@ Educational and research purposes only. Not financial advice. Consult a financia
 
 ---
 
-**License**: MIT | **Status**: Production-ready
+**Copyright**: All rights reserved | **Status**: Production-ready
 
