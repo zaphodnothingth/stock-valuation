@@ -34,6 +34,13 @@ python 3.8+
 pip install -r requirements.txt
 ```
 
+## TODO
+1. take into account chronically undervalued stocks as non-buys.  
+1. how would shorting Mötley fool suggested sells perform?
+1. UI?
+1. vitality index for growth stocks only?
+    a. 3M's identity as an innovator is best evaluated by its own New Product Vitality Index (NPVI) developed in the 1980s. This percentage measures the contribution of products launched in the past five years to overall revenue. The indicator met the company's long-term "30% rule" nearly a decade ago but fell to 10% in 2024, and that's after excluding the healthcare spinoff with a dismal vitality index score of just 2%.
+
 ## Disclaimer
 
 Educational and research purposes only. Not financial advice. Consult a financial advisor before investing.
